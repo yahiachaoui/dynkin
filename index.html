@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dynkin · Simulateurs de décisions</title>
+<meta name="description" content="Un simulateur de décisions construit sur votre business. Vos équipes tranchent les dilemmes de leur quotidien et voient ce que chaque choix coûte et rapporte.">
+<meta name="robots" content="noindex, nofollow">
+<meta property="og:title" content="Le P&L devient évident pour vos équipes terrain">
+<meta property="og:description" content="Un simulateur de décisions construit sur votre business, pour vos équipes opérationnelles.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Dynkin">
+<meta property="og:url" content="https://yahiachaoui.github.io/dynkin/">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230B0B0C'/%3E%3Ctext x='16' y='22' text-anchor='middle' font-family='Georgia,serif' font-size='17' fill='%23fff'%3E%CF%80%CE%BB%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+:root{
+  --bg:#FFFFFF; --surface:#F6F6F4; --surface-2:#EDEDEA; --line:#E2E2DE;
+  --text:#0B0B0C; --muted:#5E5F63; --soft:#8A8B90;
+  --btn:#0B0B0C; --btn-text:#FFFFFF; --btn-hover:#2A2A2D;
+  --accent:#2F5BEA; --good:#18905A; --warn:#C27C0E; --bad:#C9423A;
+  --focus:#2F5BEA;
+  --nav-bg:rgba(255,255,255,.72);
+  --hero-from:#000000; --hero-to:#666666;
+  --tile:#E7E7E2; --tile-line:#D4D4CE; --bl:#D8D8D2; --br:#C9C9C2; --bt:#F2F2EE;
+  --ease:cubic-bezier(0.22,1,0.36,1);
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#000000; --surface:#181818; --surface-2:#1F1F1F; --line:#313131;
+    --text:#F4F4F2; --muted:#A3A3A6; --soft:#7C7C80;
+    --btn:#F4F4F2; --btn-text:#0B0B0C; --btn-hover:#D9D9D6;
+    --accent:#7C9BFF; --good:#3CC584; --warn:#E8A93A; --bad:#F06A61; --focus:#7C9BFF;
+    --nav-bg:rgba(24,24,24,.72);
+    --hero-from:#FFFFFF; --hero-to:#9B9B9B;
+    --tile:#272727; --tile-line:#313131; --bl:#313131; --br:#272727; --bt:#3A3A3A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#000000; --surface:#181818; --surface-2:#1F1F1F; --line:#313131;
+  --text:#F4F4F2; --muted:#A3A3A6; --soft:#7C7C80;
+  --btn:#F4F4F2; --btn-text:#0B0B0C; --btn-hover:#D9D9D6;
+  --accent:#7C9BFF; --good:#3CC584; --warn:#E8A93A; --bad:#F06A61; --focus:#7C9BFF;
+  --nav-bg:rgba(24,24,24,.72);
+  --hero-from:#FFFFFF; --hero-to:#9B9B9B;
+  --tile:#272727; --tile-line:#313131; --bl:#313131; --br:#272727; --bt:#3A3A3A;
+  color-scheme:dark;
+}
+
+/* Base */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;scroll-padding-top:96px}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3,h4{text-wrap:balance}
+p,li,dd,summary,label{text-wrap:pretty}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:6px}
+img,svg{display:block}
+[hidden]{display:none!important}
+
+/* Text styles (B1) */
+.heading-1{font-size:60px;line-height:60px;font-weight:600;letter-spacing:-0.02em}
+.heading-2{font-size:48px;line-height:48px;font-weight:600;letter-spacing:-0.02em}
+.heading-3{font-size:36px;line-height:40px;font-weight:600;letter-spacing:-0.015em}
+.heading-4{font-size:30px;line-height:36px;font-weight:600;letter-spacing:-0.01em}
+.heading-5{font-size:24px;line-height:32px;font-weight:600}
+.heading-6{font-size:20px;line-height:28px;font-weight:600}
+.title-1{font-size:20px;line-height:28px;font-weight:500}
+.title-2{font-size:18px;line-height:28px;font-weight:500}
+.title-3{font-size:16px;line-height:24px;font-weight:500}
+.title-4{font-size:14px;line-height:20px;font-weight:500}
+.title-5{font-size:12px;line-height:16px;font-weight:500}
+.body-1{font-size:16px;line-height:24px;font-weight:600}
+.body-2{font-size:16px;line-height:24px;font-weight:500}
+.body-3{font-size:16px;line-height:24px;font-weight:400}
+.body-4{font-size:14px;line-height:20px;font-weight:600}
+.body-5{font-size:14px;line-height:20px;font-weight:500}
+.body-6{font-size:14px;line-height:20px;font-weight:400}
+.body-7{font-size:18px;line-height:28px;font-weight:400}
+.button-lg{font-size:18px;line-height:28px;font-weight:600}
+.button-md{font-size:16px;line-height:24px;font-weight:600}
+.button-sm{font-size:14px;line-height:20px;font-weight:600}
+.button-xsm{font-size:12px;line-height:16px;font-weight:600}
+.caption-1{font-size:14px;line-height:20px;font-weight:500}
+.caption-2{font-size:14px;line-height:20px;font-weight:400}
+.caption-3{font-size:12px;line-height:16px;font-weight:600}
+.caption-4{font-size:12px;line-height:16px;font-weight:500}
+.caption-5{font-size:12px;line-height:16px;font-weight:400}
+@media (min-width:768px){
+  .md\:heading-1{font-size:60px;line-height:60px}
+  .md\:heading-2{font-size:48px;line-height:48px}
+  .md\:heading-3{font-size:36px;line-height:40px}
+}
+.mono{font-family:'Geist Mono',ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.muted{color:var(--muted)}
+
+/* Layout */
+.container{max-width:1120px;margin:0 auto;padding:0 16px}
+@media (min-width:768px){.container{padding:0 32px}}
+section{padding:64px 0}
+@media (min-width:768px){section{padding:96px 0}}
+.section-head{max-width:680px;display:grid;gap:16px;margin-bottom:48px}
+.section-head.center{margin-left:auto;margin-right:auto;text-align:center}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;color:var(--muted)}
+
+/* Skip link */
+.skip{position:absolute;left:16px;top:-64px;z-index:100;background:var(--btn);color:var(--btn-text);padding:8px 12px;border-radius:8px;text-decoration:none;transition:transform 300ms var(--ease)}
+.skip:focus{transform:translateY(80px)}
+
+/* Buttons (B2 main: 8px / 12px) */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:8px 12px;border-radius:8px;text-decoration:none;white-space:nowrap;
+  transition:background-color 300ms var(--ease),transform 300ms var(--ease),opacity 300ms var(--ease)}
+.btn-primary{background:var(--btn);color:var(--btn-text)}
+.btn-primary:hover{background:var(--btn-hover);transform:translateY(-2px)}
+.btn-primary:active{transform:scale(0.98)}
+.btn-ghost{background:var(--surface);color:var(--text);border:1px solid var(--line)}
+.btn-ghost:hover{background:var(--surface-2)}
+.btn-ghost:active{transform:scale(0.98)}
+.btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+.btn i{font-size:16px}
+
+/* Nav (B7) */
+.nav{position:fixed;top:16px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:8px;padding:8px;
+  background:var(--nav-bg);backdrop-filter:blur(16px) saturate(1.4);-webkit-backdrop-filter:blur(16px) saturate(1.4);
+  border:1px solid var(--line);border-radius:9999px;width:max-content;max-width:calc(100% - 32px)}
+.brand{display:inline-flex;align-items:center;gap:8px;padding:4px 12px 4px 8px;text-decoration:none;border-radius:9999px}
+.brand-mark{width:24px;height:24px;border-radius:6px;background:var(--btn);color:var(--btn-text);display:grid;place-items:center;font-size:12px;line-height:16px;font-weight:600}
+.nav-links{display:none;gap:4px;list-style:none}
+.nav-links a{display:block;padding:8px 12px;border-radius:9999px;text-decoration:none;color:var(--muted);transition:background-color 300ms var(--ease),color 300ms var(--ease)}
+.nav-links a:hover{color:var(--text);background:var(--surface)}
+.nav-links a[aria-current="true"]{color:var(--text);background:var(--surface-2)}
+.nav .btn{border-radius:9999px}
+.nav-cta{display:none}
+.menu-toggle{width:40px;height:40px;border-radius:9999px;display:grid;place-items:center;position:relative}
+.menu-toggle span{position:absolute;left:12px;width:16px;height:2px;border-radius:2px;background:var(--text);transition:transform 500ms var(--ease),opacity 300ms var(--ease)}
+.menu-toggle span:nth-child(1){transform:translateY(-4px)}
+.menu-toggle span:nth-child(2){transform:translateY(4px)}
+.menu-open .menu-toggle span:nth-child(1){transform:rotate(45deg)}
+.menu-open .menu-toggle span:nth-child(2){transform:rotate(-45deg)}
+@media (min-width:880px){
+  .nav-links{display:flex}
+  .nav-cta{display:inline-flex}
+  .menu-toggle{display:none}
+}
+.mobile-menu{position:fixed;inset:0;z-index:40;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  padding:96px 24px 32px;display:flex;flex-direction:column;gap:8px;opacity:0;pointer-events:none;transition:opacity 500ms var(--ease)}
+.menu-open .mobile-menu{opacity:1;pointer-events:auto}
+.mobile-menu a,.mobile-menu button{opacity:0;transform:translateY(24px);transition:opacity 500ms var(--ease),transform 500ms var(--ease)}
+.mobile-menu > a{display:block;padding:12px 0;text-decoration:none;border-bottom:1px solid var(--line)}
+.mobile-menu .btn{margin-top:24px;align-self:flex-start}
+.menu-open .mobile-menu a,.menu-open .mobile-menu button{opacity:1;transform:none}
+@media (min-width:880px){.mobile-menu{display:none}}
+
+/* Hero */
+.hero{padding-top:96px;padding-bottom:64px}
+.hero-inner{margin-top:48px;display:grid;justify-items:center;text-align:center;gap:24px}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:9999px;border:1px solid var(--line);background:var(--surface);color:var(--muted)}
+.pill .dot{width:8px;height:8px;border-radius:9999px;background:var(--good)}
+.hero-title{max-width:680px;background:linear-gradient(90deg,var(--hero-from),var(--hero-to));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero-sub{max-width:680px;color:var(--muted)}
+.br-md{display:none}
+@media (min-width:768px){.br-md{display:inline}.hero-title{text-wrap:wrap}}
+.cta-block{display:grid;justify-items:center;gap:8px}
+.proof{display:inline-flex;align-items:flex-start;gap:8px;max-width:520px;color:var(--muted);text-align:left}
+.proof i{font-size:20px;color:var(--text);flex:none}
+
+/* Demo */
+.demo{margin:48px auto 0;max-width:960px;border:1px solid var(--line);border-radius:24px;background:var(--surface);padding:16px;display:grid;gap:16px;text-align:left}
+.demo-top{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:0 8px;flex-wrap:wrap}
+.demo-top .label{display:flex;align-items:center;gap:8px}
+.clock{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;border-radius:9999px;background:var(--bg);border:1px solid var(--line)}
+.clock .live{width:8px;height:8px;border-radius:9999px;background:var(--bad);animation:pulse 1600ms var(--ease) infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.demo-grid{display:grid;gap:16px}
+@media (min-width:880px){.demo-grid{grid-template-columns:1.1fr 1fr}}
+.panel{background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:16px}
+.map-panel{display:grid;place-items:center;min-height:240px;padding:8px}
+.map-panel svg{width:100%;max-width:440px;height:auto}
+.t{fill:var(--tile);stroke:var(--tile-line);stroke-width:1}
+.road{fill:var(--surface-2);stroke:var(--tile-line);stroke-width:1}
+.bL{fill:var(--bl)} .bR{fill:var(--br)} .bT{fill:var(--bt);stroke:var(--tile-line);stroke-width:.5}
+.hq .bT{fill:var(--accent);stroke:none} .hq .bL{fill:color-mix(in srgb,var(--accent) 70%,#000)} .hq .bR{fill:color-mix(in srgb,var(--accent) 55%,#000)}
+.car{transition:transform 1200ms var(--ease),opacity 500ms var(--ease)}
+.car circle{fill:var(--text)}
+.rider circle{fill:var(--good)}
+.gauges{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gauge{display:grid;gap:4px;padding:12px;border-radius:8px;border:1px solid var(--line);background:var(--bg)}
+.gauge-row{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.gauge-value{font-size:16px;line-height:24px}
+.bar{height:4px;border-radius:9999px;background:var(--surface-2);overflow:hidden}
+.bar span{display:block;height:100%;width:100%;background:var(--text);transform-origin:left;transition:transform 500ms var(--ease)}
+.delta{opacity:0;transition:opacity 300ms var(--ease)}
+.delta.show{opacity:1}
+.up{color:var(--good)} .down{color:var(--bad)}
+.dilemma{display:grid;gap:12px;margin-top:8px}
+.dilemma-card{border:1px solid var(--line);border-radius:8px;padding:16px;display:grid;gap:12px;background:var(--bg);transition:opacity 500ms var(--ease),transform 500ms var(--ease)}
+.dilemma-card.leaving{opacity:0;transform:translateY(8px)}
+.dilemma-head{display:flex;gap:8px;align-items:flex-start}
+.dilemma-head i{font-size:20px;color:var(--warn);flex:none;margin-top:2px}
+.choices{display:grid;gap:8px}
+@media (min-width:480px){.choices{grid-template-columns:1fr 1fr}}
+.choice{text-align:left;padding:8px 12px;border-radius:6px;border:1px solid var(--line);background:var(--surface);transition:background-color 300ms var(--ease),transform 300ms var(--ease),border-color 300ms var(--ease)}
+.choice:hover{background:var(--surface-2);border-color:var(--soft)}
+.choice:active{transform:scale(0.98)}
+.choice small{display:block;color:var(--muted)}
+.effect{display:flex;gap:8px;align-items:flex-start}
+.effect i{font-size:20px;flex:none;margin-top:2px}
+
+/* Problem */
+.compare{display:grid;gap:16px}
+@media (min-width:768px){.compare{grid-template-columns:1fr 1fr}}
+.card{border:1px solid var(--line);border-radius:16px;padding:24px;background:var(--bg)}
+.card.filled{background:var(--surface)}
+.card h3{margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.list{list-style:none;display:grid;gap:12px}
+.list li{display:flex;gap:12px;align-items:flex-start}
+.list i{font-size:20px;flex:none}
+.list .x{color:var(--soft)}
+.list .ok{color:var(--good)}
+
+/* Tagline reveal (B11) */
+.tagline{padding:96px 0}
+.tagline p{max-width:680px;margin:0 auto;text-align:center;text-wrap:balance}
+.tagline .w{opacity:.3;transition:opacity 600ms var(--ease)}
+.tagline .w.on{opacity:1}
+
+/* Benefits */
+.grid-2{display:grid;gap:16px}
+@media (min-width:768px){.grid-2{grid-template-columns:1fr 1fr}}
+.benefit{display:grid;gap:12px;transition:transform 500ms var(--ease),background-color 300ms var(--ease)}
+.benefit:hover{transform:translateY(-4px);background:var(--surface)}
+.icon-box{width:40px;height:40px;border-radius:8px;display:grid;place-items:center;background:var(--surface-2)}
+.icon-box i{font-size:20px}
+.tag{justify-self:start;padding:2px 8px;border-radius:9999px;border:1px solid var(--line);color:var(--muted)}
+.center-note{margin-top:32px;text-align:center;color:var(--muted)}
+.center-note button{text-decoration:underline;text-underline-offset:4px;color:var(--text)}
+
+/* Steps */
+.steps{display:grid;gap:16px;counter-reset:s}
+@media (min-width:768px){.steps{grid-template-columns:repeat(3,1fr)}}
+.step{display:grid;gap:12px;align-content:start}
+.step-num{width:32px;height:32px;border-radius:9999px;display:grid;place-items:center;background:var(--btn);color:var(--btn-text)}
+
+/* Proof */
+.proof-grid{display:grid;gap:16px}
+@media (min-width:880px){.proof-grid{grid-template-columns:1.2fr 1fr}}
+.spec{list-style:none;display:grid;gap:16px}
+.spec li{display:grid;grid-template-columns:40px 1fr;gap:16px;align-items:start}
+.placeholder{border:1px dashed var(--soft);border-radius:16px;padding:24px;display:grid;gap:16px;align-content:center;background:var(--surface)}
+.pilot{display:grid;gap:16px;align-content:start}
+
+/* FAQ */
+.faq{max-width:760px;margin:0 auto;display:grid;gap:8px}
+.faq details{border:1px solid var(--line);border-radius:12px;background:var(--bg);transition:background-color 300ms var(--ease)}
+.faq details[open]{background:var(--surface)}
+.faq summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 24px;border-radius:12px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary i{font-size:20px;transition:transform 500ms var(--ease);flex:none}
+.faq details[open] summary i{transform:rotate(45deg)}
+.faq .answer{padding:0 24px 24px;color:var(--muted)}
+
+/* Final CTA */
+.final{border:1px solid var(--line);border-radius:24px;background:var(--surface);padding:48px 24px;display:grid;justify-items:center;text-align:center;gap:24px}
+@media (min-width:768px){.final{padding:80px 48px}}
+.final h2,.final p{max-width:680px}
+.reassure{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 24px;color:var(--muted)}
+.reassure span{display:inline-flex;align-items:center;gap:8px}
+.reassure i{color:var(--good);font-size:16px}
+
+/* Footer */
+footer{border-top:1px solid var(--line);padding:32px 0 48px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center;color:var(--muted)}
+.foot nav{display:flex;flex-wrap:wrap;gap:16px}
+.foot nav button,.foot nav a{color:var(--muted);text-decoration:none;transition:color 300ms var(--ease)}
+.foot nav button:hover,.foot nav a:hover{color:var(--text)}
+
+/* Reveal (B7) */
+.reveal{opacity:0;transform:translateY(32px);transition:opacity 700ms var(--ease),transform 700ms var(--ease)}
+.reveal.in{opacity:1;transform:none}
+
+/* Dialogs */
+dialog{border:0;padding:0;background:transparent;color:var(--text);max-width:none;max-height:none}
+dialog::backdrop{background:rgba(0,0,0,.45);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)}
+.quiz{width:100%;height:100%;max-width:100%;max-height:100%;margin:0;inset:0}
+.quiz::backdrop{background:var(--bg)}
+@keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+.body-8{font-size:24px;line-height:32px;font-weight:400}
+.tf{position:fixed;inset:0;background:var(--bg);display:grid;grid-template-rows:auto 1fr;overflow:hidden}
+.tf-progress{position:absolute;top:0;left:0;right:0;height:4px;background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.tf-progress span{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0);transition:transform 500ms var(--ease)}
+.tf-top{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 0}
+@media (min-width:768px){.tf-top{padding:24px 32px 0}}
+.icon-btn{width:40px;height:40px;border-radius:9999px;display:grid;place-items:center;transition:background-color 300ms var(--ease)}
+.icon-btn:hover{background:var(--surface)}
+.icon-btn:active{transform:scale(0.98)}
+.icon-btn i{font-size:20px}
+.tf-stage{overflow-y:auto;overflow-x:hidden;display:grid;grid-template-columns:minmax(0,1fr);align-items:center;padding:32px 16px 96px}
+.tf-q,.tf-body,.tf-fields,.tf-field,.tf-opts{grid-template-columns:minmax(0,1fr)}
+.tf-line{min-width:0}
+@media (min-width:768px){.tf-stage{padding:32px 32px 96px}}
+.tf-q{width:100%;max-width:720px;margin:0 auto;display:grid;gap:24px}
+.tf-q.in{animation:tfIn 500ms var(--ease)}
+.tf-q.in-back{animation:tfInBack 500ms var(--ease)}
+.tf-q.out{opacity:0;transform:translateY(-48px);transition:opacity 300ms var(--ease),transform 300ms var(--ease)}
+.tf-q.out-back{opacity:0;transform:translateY(48px);transition:opacity 300ms var(--ease),transform 300ms var(--ease)}
+@keyframes tfIn{from{opacity:0;transform:translateY(48px)}to{opacity:1;transform:none}}
+@keyframes tfInBack{from{opacity:0;transform:translateY(-48px)}to{opacity:1;transform:none}}
+.tf-head{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.tf-num{display:inline-flex;align-items:center;gap:4px;color:var(--accent);margin-top:8px}
+.tf-num i{font-size:12px}
+.tf-head-text{display:grid;gap:8px}
+.tf-intro,.tf-desc{color:var(--muted)}
+.tf-body{display:grid;gap:24px}
+@media (min-width:768px){.tf-body{margin-left:40px}}
+.tf-opts{display:grid;gap:8px;max-width:560px}
+.tf-opt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:8px 12px;border-radius:6px;color:var(--text);
+  border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 7%,transparent);
+  transition:background-color 300ms var(--ease),border-color 300ms var(--ease),transform 300ms var(--ease)}
+.tf-opt:hover{background:color-mix(in srgb,var(--accent) 15%,transparent)}
+.tf-opt:active{transform:scale(0.98)}
+.tf-opt .k{width:24px;height:24px;border-radius:4px;display:grid;place-items:center;flex:none;color:var(--accent);background:var(--bg);border:1px solid color-mix(in srgb,var(--accent) 45%,transparent)}
+.tf-opt .tick{margin-left:auto;font-size:20px;color:var(--accent);opacity:0;transition:opacity 300ms var(--ease)}
+.tf-opt[aria-pressed="true"]{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 20%,transparent)}
+.tf-opt[aria-pressed="true"] .k{background:var(--accent);border-color:var(--accent);color:var(--btn-text)}
+.tf-opt[aria-pressed="true"] .tick{opacity:1}
+.tf-opt.blink{animation:blink 480ms var(--ease)}
+@keyframes blink{0%,50%,100%{opacity:1}25%,75%{opacity:.35}}
+.tf-line{width:100%;font:inherit;color:var(--text);background:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:0;padding:8px 0;transition:border-color 300ms var(--ease)}
+.tf-line::placeholder{color:color-mix(in srgb,var(--accent) 45%,transparent)}
+.tf-line:focus{outline:0;border-bottom-color:var(--accent);box-shadow:0 1px 0 0 var(--accent)}
+.tf-line[aria-invalid="true"]{border-bottom-color:var(--bad)}
+textarea.tf-line{resize:none;min-height:80px}
+.tf-fields{display:grid;gap:24px;max-width:560px}
+.tf-field{display:grid;gap:4px}
+.tf-field label{color:var(--muted)}
+.row-2{display:grid;gap:24px}
+.row-2{grid-template-columns:minmax(0,1fr)}
+@media (min-width:560px){.row-2{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.check{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:6px;cursor:pointer;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 7%,transparent)}
+.check input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent);flex:none}
+.tf-ok{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.btn-accent{background:var(--accent);color:var(--btn-text)}
+.btn-accent:hover{background:color-mix(in srgb,var(--accent) 85%,#000);transform:translateY(-2px)}
+.btn-accent:active{transform:scale(0.98)}
+.tf-hint{color:var(--muted)}
+.tf-hint b{font-weight:600}
+@media (hover:none){.tf-hint{display:none}}
+.err,.tf-err{display:none;align-items:center;gap:8px;color:var(--bad)}
+.tf-err{padding:4px 12px;border-radius:6px;background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.err.show,.tf-err.show{display:inline-flex}
+.tf-nav{position:absolute;right:16px;bottom:16px;display:flex;gap:2px}
+@media (min-width:768px){.tf-nav{right:32px;bottom:32px}}
+.tf-nav button{width:40px;height:40px;display:grid;place-items:center;background:var(--accent);color:var(--btn-text);transition:background-color 300ms var(--ease),opacity 300ms var(--ease)}
+.tf-nav button:first-child{border-radius:6px 0 0 6px}
+.tf-nav button:last-child{border-radius:0 6px 6px 0}
+.tf-nav button:hover{background:color-mix(in srgb,var(--accent) 85%,#000)}
+.tf-nav button[disabled]{opacity:.4;cursor:not-allowed}
+.tf-nav i{font-size:20px}
+.tf-done{justify-items:center;text-align:center}
+.tf-done .icon-box{width:48px;height:48px;background:color-mix(in srgb,var(--good) 18%,transparent);color:var(--good)}
+.skeleton{display:grid;gap:12px;width:100%;max-width:560px;margin:0 auto}
+.skeleton span{height:16px;border-radius:6px;background:var(--surface-2);animation:pulse 1600ms var(--ease) infinite}
+.legal{width:min(560px,calc(100% - 32px));margin:auto}
+.legal-panel{background:var(--bg);border:1px solid var(--line);border-radius:24px;padding:32px;display:grid;gap:16px;animation:rise 500ms var(--ease)}
+
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important}
+  .reveal{transform:none;transition:opacity 300ms linear}
+  .mobile-menu a,.mobile-menu button{transform:none}
+  .car{transition:none}
+  .tagline .w{opacity:1;transition:none}
+  .btn-primary:hover,.benefit:hover{transform:none}
+}
+</style>
+</head>
+<body>
+<a class="skip button-sm" href="#main">Aller au contenu</a>
+
+<header>
+  <nav class="nav" aria-label="Navigation principale">
+    <a class="brand title-3" href="#top" aria-label="Dynkin, retour en haut">
+      <span class="brand-mark" aria-hidden="true">πλ</span>
+      Dynkin
+    </a>
+    <ul class="nav-links title-4">
+      <li><a href="#probleme">Le problème</a></li>
+      <li><a href="#usages">Usages</a></li>
+      <li><a href="#methode">Méthode</a></li>
+      <li><a href="#faq">FAQ</a></li>
+    </ul>
+    <button class="btn btn-primary button-sm nav-cta" data-open-quiz>Demander mon appel</button>
+    <button class="menu-toggle" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="mobile-menu"><span></span><span></span></button>
+  </nav>
+  <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+    <a class="heading-5" href="#probleme">Le problème</a>
+    <a class="heading-5" href="#usages">Usages</a>
+    <a class="heading-5" href="#methode">Méthode</a>
+    <a class="heading-5" href="#faq">FAQ</a>
+    <button class="btn btn-primary button-md" data-open-quiz>Demander mon appel</button>
+  </div>
+</header>
+
+<main id="main">
+  <!-- HERO -->
+  <section class="hero" id="top">
+    <div class="container">
+      <div class="hero-inner">
+        <span class="pill caption-4"><span class="dot" aria-hidden="true"></span>Simulateurs de décisions pour équipes opérationnelles</span>
+        <h1 class="hero-title heading-3 md:heading-1">Le P&amp;L devient évident<br class="br-md"> pour vos équipes terrain</h1>
+        <p class="hero-sub body-7">Un simulateur de décisions construit sur votre business. Vos équipes y tranchent les dilemmes de leur quotidien et voient en quelques secondes ce que chaque choix coûte et rapporte. Un mois de terrain se joue en quelques minutes, sans risquer un euro.</p>
+        <div class="cta-block">
+          <button class="btn btn-primary button-md" data-open-quiz>Demander mon appel <i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+          <span class="caption-5 muted">Deux minutes, une question à la fois. Je vous rappelle ensuite.</span>
+        </div>
+        <p class="proof caption-2"><i class="ph ph-seal-check" aria-hidden="true"></i>Conçu par un Operations Manager : 5 ans de terrain et plusieurs ouvertures de pays dans une scaleup européenne de la mobilité.</p>
+      </div>
+
+      <!-- Demo -->
+      <div class="demo" aria-label="Démo jouable du simulateur">
+        <div class="demo-top">
+          <span class="label title-4"><i class="ph ph-game-controller" aria-hidden="true"></i>Essayez : vous dirigez une app de VTC dans une ville</span>
+          <span class="clock caption-4"><span class="live" aria-hidden="true"></span><span id="clock" class="mono">Mois 3 · semaine 1</span></span>
+        </div>
+        <div class="demo-grid">
+          <div class="panel map-panel">
+            <svg id="map" viewBox="0 0 320 210" role="img" aria-label="Carte isométrique de la ville, avec des voitures qui circulent"></svg>
+          </div>
+          <div>
+            <div class="gauges" id="gauges"></div>
+            <div class="dilemma" aria-live="polite">
+              <div class="dilemma-card" id="dilemma"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROBLEM -->
+  <section id="probleme" data-nav>
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow caption-3">LE PROBLÈME</span>
+        <h2 class="heading-4 md:heading-2">Un forecast de 40 onglets ne forme personne</h2>
+        <p class="body-7 muted">Les modèles Excel disent tout à la finance et peu au terrain. Les décisions du quotidien se prennent sans voir leur effet sur la marge, et chaque nouveau manager apprend à vos frais.</p>
+      </div>
+      <div class="compare">
+        <article class="card reveal">
+          <h3 class="heading-6"><i class="ph ph-table" aria-hidden="true"></i>Aujourd'hui</h3>
+          <ul class="list body-3">
+            <li><i class="ph ph-x-circle x" aria-hidden="true"></i>Des fichiers lourds, ouverts surtout par la finance</li>
+            <li><i class="ph ph-x-circle x" aria-hidden="true"></i>Des leviers expliqués en slides, oubliés en deux semaines</li>
+            <li><i class="ph ph-x-circle x" aria-hidden="true"></i>Des erreurs apprises sur le terrain, payées avec du vrai budget</li>
+            <li><i class="ph ph-x-circle x" aria-hidden="true"></i>Des mois avant qu'un manager sente son business</li>
+          </ul>
+        </article>
+        <article class="card filled reveal">
+          <h3 class="heading-6"><i class="ph ph-game-controller" aria-hidden="true"></i>Avec un simulateur</h3>
+          <ul class="list body-3">
+            <li><i class="ph ph-check-circle ok" aria-hidden="true"></i>Un tableau de bord qui se lit en un coup d'œil</li>
+            <li><i class="ph ph-check-circle ok" aria-hidden="true"></i>Des dilemmes tranchés, avec leur effet sur le P&amp;L en direct</li>
+            <li><i class="ph ph-check-circle ok" aria-hidden="true"></i>Des erreurs qui coûtent zéro euro et marquent les esprits</li>
+            <li><i class="ph ph-check-circle ok" aria-hidden="true"></i>Une année de décisions vécue en quelques heures</li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAGLINE REVEAL -->
+  <section class="tagline" aria-label="Notre conviction">
+    <div class="container">
+      <p class="heading-3 md:heading-2" id="tagline">Vos équipes n'ont pas besoin d'un tableur de plus. Elles ont besoin de sentir ce que coûte une décision avant de la prendre.</p>
+    </div>
+  </section>
+
+  <!-- BENEFITS -->
+  <section id="usages" data-nav>
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow caption-3">CE QUI CHANGE</span>
+        <h2 class="heading-4 md:heading-2">Quand le business se joue, il se comprend</h2>
+      </div>
+      <div class="grid-2">
+        <article class="card benefit reveal">
+          <span class="icon-box" aria-hidden="true"><i class="ph ph-user-plus"></i></span>
+          <h3 class="heading-6">Des managers prêts en jours</h3>
+          <p class="body-3 muted">Un nouveau manager vit un an de dilemmes en quelques sessions, au lieu de les apprendre à vos frais sur le terrain.</p>
+          <span class="tag caption-4">Onboarding</span>
+        </article>
+        <article class="card benefit reveal">
+          <span class="icon-box" aria-hidden="true"><i class="ph ph-chart-line-up"></i></span>
+          <h3 class="heading-6">Le P&amp;L parlé par le terrain</h3>
+          <p class="body-3 muted">Un bonus, une campagne, un ticket en retard : chaque geste montre son effet sur la marge. Les unit economics deviennent un réflexe.</p>
+          <span class="tag caption-4">Alignement financier</span>
+        </article>
+        <article class="card benefit reveal">
+          <span class="icon-box" aria-hidden="true"><i class="ph ph-flask"></i></span>
+          <h3 class="heading-6">Des stratégies testées avant d'être payées</h3>
+          <p class="body-3 muted">Vos directeurs essaient un plan d'investissement dans le bac à sable avant d'engager le vrai budget.</p>
+          <span class="tag caption-4">Aide à la décision</span>
+        </article>
+        <article class="card benefit reveal">
+          <span class="icon-box" aria-hidden="true"><i class="ph ph-target"></i></span>
+          <h3 class="heading-6">Le jugement, enfin visible</h3>
+          <p class="body-3 muted">En entretien ou en séminaire, on voit comment quelqu'un arbitre sous pression, pas comment il en parle.</p>
+          <span class="tag caption-4">Recrutement et séminaires</span>
+        </article>
+      </div>
+      <p class="center-note body-6 reveal">Lequel compte le plus pour vous ? <button data-open-quiz>C'est une des questions.</button></p>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="methode" data-nav>
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow caption-3">LA MÉTHODE</span>
+        <h2 class="heading-4 md:heading-2">Vos dilemmes, votre simulateur, en trois étapes</h2>
+      </div>
+      <div class="steps">
+        <article class="card step reveal">
+          <span class="step-num button-sm" aria-hidden="true">1</span>
+          <h3 class="heading-6">On écoute vos dilemmes</h3>
+          <p class="body-3 muted">Un appel, puis un atelier avec vos managers : les décisions qu'ils prennent chaque semaine et ce qu'elles coûtent.</p>
+        </article>
+        <article class="card step reveal">
+          <span class="step-num button-sm" aria-hidden="true">2</span>
+          <h3 class="heading-6">On construit votre simulateur</h3>
+          <p class="body-3 muted">Vos indicateurs, vos ordres de grandeur, vos dilemmes, dans une partie qui se joue dans le navigateur.</p>
+        </article>
+        <article class="card step reveal">
+          <span class="step-num button-sm" aria-hidden="true">3</span>
+          <h3 class="heading-6">Vos équipes jouent, vous voyez</h3>
+          <p class="body-3 muted">Le débrief montre quels leviers sont compris et lesquels restent flous.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROOF -->
+  <section aria-labelledby="preuve-titre">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow caption-3">DÉJÀ EN JEU</span>
+        <h2 class="heading-4 md:heading-2" id="preuve-titre">Un premier simulateur tourne déjà, pour une marketplace de mobilité</h2>
+      </div>
+      <div class="proof-grid">
+        <article class="card reveal">
+          <ul class="spec">
+            <li><span class="icon-box" aria-hidden="true"><i class="ph ph-timer"></i></span><div><h3 class="title-2">Le temps ne s'arrête pas</h3><p class="body-6 muted">Un mois de marché se joue en trois minutes. Les décisions attendent rarement le bon moment.</p></div></li>
+            <li><span class="icon-box" aria-hidden="true"><i class="ph ph-chats-circle"></i></span><div><h3 class="title-2">Des dilemmes en direct</h3><p class="body-6 muted">Bonus, prix, support, marketing, recrutement : chaque choix a un coût et un effet décalé.</p></div></li>
+            <li><span class="icon-box" aria-hidden="true"><i class="ph ph-presentation-chart"></i></span><div><h3 class="title-2">Un point trimestriel avec des objectifs</h3><p class="body-6 muted">Comme dans la vraie vie, la direction juge le trimestre, et deux trimestres manqués coûtent le poste.</p></div></li>
+            <li><span class="icon-box" aria-hidden="true"><i class="ph ph-function"></i></span><div><h3 class="title-2">Un vrai modèle derrière</h3><p class="body-6 muted">Chaque mois est calculé heure par heure, sur une semaine type de 168 heures.</p></div></li>
+          </ul>
+        </article>
+        <aside class="card filled pilot reveal" aria-labelledby="pilote-titre">
+          <span class="icon-box" aria-hidden="true"><i class="ph ph-users-three"></i></span>
+          <h3 class="heading-6" id="pilote-titre">Les premiers simulateurs se construisent avec leurs utilisateurs</h3>
+          <p class="body-3 muted">Je cherche quelques entreprises pour construire leur simulateur avec moi. Vos réponses au questionnaire décident de ce qui sera construit en premier.</p>
+          <div><button class="btn btn-ghost button-sm" data-open-quiz>Demander mon appel <i class="ph ph-arrow-right" aria-hidden="true"></i></button></div>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq" data-nav>
+    <div class="container">
+      <div class="section-head center reveal">
+        <span class="eyebrow caption-3" style="justify-self:center">QUESTIONS</span>
+        <h2 class="heading-4 md:heading-2">Ce qu'on me demande souvent</h2>
+      </div>
+      <div class="faq reveal">
+        <details><summary class="title-3">C'est quoi, concrètement ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Un tableau de bord avec une carte, des jauges et une horloge. Le temps avance, des dilemmes arrivent, vous tranchez, et les indicateurs bougent devant vous.</p></details>
+        <details><summary class="title-3">C'est réservé à la mobilité ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Non. Le premier simulateur vient d'une marketplace de mobilité, mais la mécanique vaut pour toute activité où des équipes terrain arbitrent entre coût, volume et qualité : logistique, livraison, réseaux d'agences, marketplaces.</p></details>
+        <details><summary class="title-3">Nos chiffres confidentiels doivent quitter l'entreprise ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Non. Des ordres de grandeur suffisent pour que les dilemmes sonnent juste. Le niveau de détail se décide ensemble.</p></details>
+        <details><summary class="title-3">Combien de temps dure une partie ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">La démonstration fait vivre 18 mois de business en moins d'une heure. La durée s'adapte à l'usage, d'une session d'onboarding à un séminaire.</p></details>
+        <details><summary class="title-3">Qui joue ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Les nouveaux managers, les équipes opérationnelles, les directeurs, ou des candidats en entretien. Tout se joue dans le navigateur, sans installation.</p></details>
+        <details><summary class="title-3">Pourquoi un jeu plutôt qu'une formation ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Parce qu'on retient ce qu'on a vécu. Une erreur dans le simulateur coûte zéro euro, et elle s'oublie rarement.</p></details>
+        <details><summary class="title-3">Combien ça coûte ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Cela dépend de l'usage : un atelier, un simulateur sur vos chiffres, ou un outil pour toute l'équipe. Le questionnaire sert justement à le cerner, et on en parle pendant l'appel.</p></details>
+        <details><summary class="title-3">Pourquoi toutes ces questions ?<i class="ph ph-plus" aria-hidden="true"></i></summary><p class="answer body-3">Cette offre se construit avec ses premiers clients. Vos réponses décident de ce qui sera construit en premier. Je lis chacune personnellement.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section aria-labelledby="final-titre">
+    <div class="container">
+      <div class="final reveal">
+        <h2 class="heading-4 md:heading-2" id="final-titre">Parlons des dilemmes de vos équipes</h2>
+        <p class="body-7 muted">Deux minutes, une question à la fois. Je lis chaque réponse et je vous rappelle pour un échange de 20 minutes. Pas une démo commerciale : une conversation sur votre terrain.</p>
+        <div class="cta-block">
+          <button class="btn btn-primary button-md" data-open-quiz>Demander mon appel <i class="ph ph-arrow-right" aria-hidden="true"></i></button>
+        </div>
+        <div class="reassure caption-1">
+          <span><i class="ph ph-check" aria-hidden="true"></i>Rien à payer</span>
+          <span><i class="ph ph-check" aria-hidden="true"></i>Rien à signer</span>
+          <span><i class="ph ph-check" aria-hidden="true"></i>Aucune séquence d'emails automatiques</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container foot caption-2">
+    <span>Dynkin · Simulateurs de décisions pour équipes opérationnelles</span>
+    <nav aria-label="Liens légaux">
+      <button data-legal="privacy">Confidentialité</button>
+      <button data-legal="legal">Mentions légales</button>
+      <a href="mailto:yahiachaoui1@gmail.com">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<!-- QUESTIONNAIRE -->
+<dialog class="quiz" id="quiz" aria-label="Questionnaire">
+  <div class="tf">
+    <div class="tf-progress" role="progressbar" aria-label="Avancement du questionnaire" aria-valuemin="0" aria-valuemax="100" id="progress"><span></span></div>
+    <div class="tf-top">
+      <span class="brand title-3"><span class="brand-mark" aria-hidden="true">πλ</span>Dynkin</span>
+      <button class="icon-btn" id="quiz-close" aria-label="Fermer le questionnaire"><i class="ph ph-x" aria-hidden="true"></i></button>
+    </div>
+    <div class="tf-stage" id="quiz-body"></div>
+    <div class="tf-nav" id="quiz-nav">
+      <button id="back" aria-label="Question précédente"><i class="ph ph-caret-up" aria-hidden="true"></i></button>
+      <button id="fwd" aria-label="Question suivante"><i class="ph ph-caret-down" aria-hidden="true"></i></button>
+    </div>
+  </div>
+</dialog>
+
+<dialog class="legal" id="legal" aria-labelledby="legal-title">
+  <div class="legal-panel">
+    <h2 class="heading-5" id="legal-title"></h2>
+    <p class="body-3 muted" id="legal-text"></p>
+    <form method="dialog"><button class="btn btn-ghost button-sm">Fermer</button></form>
+  </div>
+</dialog>
+
+<script>
+/* Destination des réponses : le script du Google Sheet « Levier · Réponses du questionnaire » (nom du fichier sur le Drive).
+   Vide = maquette : la réponse reste dans ce navigateur. */
+const ENDPOINT = 'https://script.google.com/macros/s/AKfycbwqRXMtloPFEBykRCpPxjWkKgbWfSx3_MSpBqyUF-NzezF_Ih1CCso4hLXmm_bSIhoOrw/exec';
+const ease = 'cubic-bezier(0.22,1,0.36,1)';
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const fmt = n => Math.round(n).toLocaleString('fr-FR');
+
+/* ---------- Navigation ---------- */
+const navEl = document.querySelector('.nav');
+const toggle = document.querySelector('.menu-toggle');
+const mobile = document.getElementById('mobile-menu');
+function setMenu(open){
+  document.body.classList.toggle('menu-open', open);
+  toggle.setAttribute('aria-expanded', open);
+  toggle.setAttribute('aria-label', open ? 'Fermer le menu' : 'Ouvrir le menu');
+  mobile.setAttribute('aria-hidden', !open);
+  const items = mobile.querySelectorAll('a,button');
+  const step = Math.min(60, 400 / items.length);
+  items.forEach((el, i) => el.style.transitionDelay = open ? (i * step) + 'ms' : '0ms');
+}
+toggle.addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
+mobile.querySelectorAll('a').forEach(a => a.addEventListener('click', () => setMenu(false)));
+
+const navLinks = [...document.querySelectorAll('.nav-links a')];
+const spy = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (!e.isIntersecting) return;
+    navLinks.forEach(a => a.setAttribute('aria-current', a.getAttribute('href') === '#' + e.target.id ? 'true' : 'false'));
+  });
+}, {rootMargin: '-45% 0px -50% 0px'});
+document.querySelectorAll('[data-nav]').forEach(s => spy.observe(s));
+
+/* ---------- Scroll reveals ---------- */
+const rev = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); rev.unobserve(e.target); } });
+}, {threshold: .12});
+document.querySelectorAll('.reveal').forEach(el => rev.observe(el));
+
+/* ---------- Tagline, word by word (B11) ---------- */
+const tag = document.getElementById('tagline');
+tag.innerHTML = tag.textContent.trim().split(/\s+/).map(w => `<span class="w">${w}</span>`).join(' ');
+const words = [...tag.querySelectorAll('.w')];
+if (reduced){ words.forEach(w => w.classList.add('on')); }
+else {
+  let ticking = false;
+  const update = () => {
+    const line = innerHeight * 0.62;
+    words.forEach(w => {
+      const r = w.getBoundingClientRect();
+      // Words light in reading order: line position first, then horizontal position.
+      const progress = r.top + r.left / innerWidth * r.height;
+      w.classList.toggle('on', progress < line);
+    });
+    ticking = false;
+  };
+  addEventListener('scroll', () => { if (!ticking){ ticking = true; requestAnimationFrame(update); } }, {passive: true});
+  update();
+}
+
+/* ---------- Demo : map ---------- */
+const svg = document.getElementById('map');
+const NS = 'http://www.w3.org/2000/svg';
+const N = 6, W = 24, H = 12, OX = 160, OY = 62;
+const iso = (c, r) => [OX + (c - r) * W, OY + (c + r) * H];
+const el = (tag, attrs, parent = svg) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); parent.appendChild(e); return e; };
+const diamond = (x, y) => `${x},${y} ${x + W},${y + H} ${x},${y + 2 * H} ${x - W},${y + H}`;
+const roads = new Set(['2', 'r3']);
+for (let r = 0; r < N; r++) for (let c = 0; c < N; c++){
+  const [x, y] = iso(c, r);
+  el('polygon', {points: diamond(x, y), class: (c === 2 || r === 3) ? 'road' : 't'});
+}
+const buildings = [[0,0,34],[1,0,22],[0,1,26],[4,0,18],[5,1,30],[0,4,20],[1,5,16],[4,4,24],[5,5,14],[5,4,20],[4,5,28],[1,1,14],[3,0,12],[0,2,18]];
+const hq = [4,1,40];
+const sorted = [...buildings, hq].sort((a, b) => (a[0] + a[1]) - (b[0] + b[1]));
+sorted.forEach(([c, r, h]) => {
+  const g = el('g', {class: (c === hq[0] && r === hq[1]) ? 'hq' : ''});
+  const [x, y0] = iso(c, r); const s = 0.62, w = W * s, hh = H * s;
+  const cx = x, cy = y0 + H;
+  const top = [[cx, cy - hh - h], [cx + w, cy - h], [cx, cy + hh - h], [cx - w, cy - h]];
+  el('polygon', {class: 'bL', points: `${cx - w},${cy - h} ${cx},${cy + hh - h} ${cx},${cy + hh} ${cx - w},${cy}`}, g);
+  el('polygon', {class: 'bR', points: `${cx + w},${cy - h} ${cx},${cy + hh - h} ${cx},${cy + hh} ${cx + w},${cy}`}, g);
+  el('polygon', {class: 'bT', points: top.map(p => p.join(',')).join(' ')}, g);
+});
+const roadTiles = [];
+for (let i = 0; i < N; i++){ roadTiles.push([2, i]); roadTiles.push([i, 3]); }
+const center = ([c, r]) => { const [x, y] = iso(c, r); return [x, y + H]; };
+const cars = [], riders = [];
+function addDot(list, cls, rad){
+  const g = el('g', {class: 'car ' + cls}); el('circle', {r: rad, cx: 0, cy: 0}, g);
+  const t = roadTiles[Math.floor(Math.random() * roadTiles.length)];
+  const [x, y] = center(t); g.style.transform = `translate(${x}px,${y}px)`; list.push(g); return g;
+}
+for (let i = 0; i < 9; i++) addDot(cars, '', 3);
+for (let i = 0; i < 6; i++) addDot(riders, 'rider', 2.5);
+function moveDots(){
+  [...cars, ...riders].forEach(g => {
+    const t = roadTiles[Math.floor(Math.random() * roadTiles.length)];
+    const [x, y] = center(t); const j = (Math.random() - .5) * 8;
+    g.style.transform = `translate(${x + j}px,${y + j / 2}px)`;
+  });
+}
+if (!reduced) setInterval(moveDots, 1500);
+
+/* ---------- Demo : gauges and dilemmas ---------- */
+const state = {budget: 48260, clients: 12840, drivers: 1386, margin: 1.87};
+const REF = {budget: 60000, clients: 16000, drivers: 1800, margin: 2.6};
+const GAUGES = [
+  {k: 'budget', label: 'Budget', unit: ' €', f: v => fmt(v)},
+  {k: 'clients', label: 'Clients actifs', unit: '', f: v => fmt(v)},
+  {k: 'drivers', label: 'Chauffeurs', unit: '', f: v => fmt(v)},
+  {k: 'margin', label: 'Marge par course', unit: ' €', f: v => v.toFixed(2).replace('.', ',')}
+];
+const gWrap = document.getElementById('gauges');
+gWrap.innerHTML = GAUGES.map(g => `
+  <div class="gauge" data-k="${g.k}">
+    <div class="gauge-row"><span class="caption-4 muted">${g.label}</span><span class="delta caption-3 mono"></span></div>
+    <span class="gauge-value mono">${g.f(state[g.k])}${g.unit}</span>
+    <div class="bar"><span></span></div>
+  </div>`).join('');
+function paintGauges(delta = {}){
+  GAUGES.forEach(g => {
+    const box = gWrap.querySelector(`[data-k="${g.k}"]`);
+    box.querySelector('.gauge-value').textContent = g.f(state[g.k]) + g.unit;
+    box.querySelector('.bar span').style.transform = `scaleX(${Math.max(.04, Math.min(1, state[g.k] / REF[g.k]))})`;
+    const d = box.querySelector('.delta'); const v = delta[g.k];
+    if (v){
+      const good = v > 0;
+      d.textContent = (v > 0 ? '+' : '−') + g.f(Math.abs(v)) + g.unit;
+      d.className = 'delta caption-3 mono show ' + (good ? 'up' : 'down');
+    } else d.className = 'delta caption-3 mono';
+  });
+}
+const DILEMMAS = [
+  {icon: 'ph-headset', title: 'Le support client a 2 jours de retard.', text: 'Payer une agence 2 600 €, ou répondre quand on peut, gratuitement ?',
+   a: {l: 'Payer l’agence', s: '−2 600 € tout de suite', d: {budget: -2600}, fx: 'Le retard est résorbé en 4 jours. Les clients restent.', good: true},
+   b: {l: 'Répondre quand on peut', s: '0 € aujourd’hui', d: {clients: -475, margin: -0.06}, fx: 'Trois semaines plus tard, 475 clients ne reviennent pas. Le coût réel dépasse celui de l’agence.', good: false}},
+  {icon: 'ph-cloud-rain', title: 'Pluie vendredi soir : il manque 140 chauffeurs.', text: 'Un bonus de 4 € par course, ou laisser les prix monter ?',
+   a: {l: 'Payer le bonus', s: '−3 140 € ce soir', d: {budget: -3140, drivers: 118, clients: 210, margin: -0.31}, fx: 'Les chauffeurs se connectent. La marge baisse ce soir, mais les clients restent fidèles.', good: true},
+   b: {l: 'Laisser les prix monter', s: '0 € de budget', d: {clients: -390, margin: 0.42}, fx: 'La marge monte ce soir. 390 clients trouvent le prix trop élevé et essaient le concurrent.', good: false}},
+  {icon: 'ph-megaphone', title: 'Le marketing demande 12 400 € pour une campagne.', text: 'Lancer la campagne, ou garder la trésorerie ?',
+   a: {l: 'Lancer la campagne', s: '−12 400 €', d: {budget: -12400, clients: 1260}, fx: '1 260 nouveaux clients. Sans chauffeurs en plus, l’attente monte de 2 minutes.', good: true},
+   b: {l: 'Garder la trésorerie', s: '0 €', d: {clients: 80}, fx: 'La trésorerie tient. La croissance ralentit, et le concurrent prend la place.', good: false}}
+];
+const card = document.getElementById('dilemma');
+let di = 0;
+function showDilemma(){
+  const d = DILEMMAS[di];
+  card.innerHTML = `
+    <div class="dilemma-head"><i class="ph ${d.icon}" aria-hidden="true"></i><div><p class="title-3">${d.title}</p><p class="body-6 muted">${d.text}</p></div></div>
+    <div class="choices">
+      <button class="choice" data-c="a"><span class="body-5">${d.a.l}</span><small class="caption-5">${d.a.s}</small></button>
+      <button class="choice" data-c="b"><span class="body-5">${d.b.l}</span><small class="caption-5">${d.b.s}</small></button>
+    </div>`;
+  card.querySelectorAll('.choice').forEach(b => b.addEventListener('click', () => choose(b.dataset.c)));
+}
+function swap(render){
+  card.classList.add('leaving');
+  setTimeout(() => { render(); card.classList.remove('leaving'); }, reduced ? 0 : 300);
+}
+function choose(c){
+  const o = DILEMMAS[di][c];
+  for (const k in o.d) state[k] += o.d[k];
+  paintGauges(o.d);
+  const last = di === DILEMMAS.length - 1;
+  swap(() => {
+    card.innerHTML = `
+      <div class="effect"><i class="ph ${o.good ? 'ph-trend-up up' : 'ph-trend-down down'}" aria-hidden="true"></i><p class="body-5">${o.fx}</p></div>
+      <div><button class="btn btn-ghost button-sm" id="demo-next">${last ? 'Rejouer la démo' : 'Dilemme suivant'} <i class="ph ph-arrow-right" aria-hidden="true"></i></button></div>`;
+    document.getElementById('demo-next').addEventListener('click', () => {
+      if (last){ Object.assign(state, {budget: 48260, clients: 12840, drivers: 1386, margin: 1.87}); di = 0; paintGauges(); }
+      else di++;
+      swap(showDilemma);
+    });
+  });
+}
+paintGauges(); showDilemma();
+let week = 1, month = 3;
+const clock = document.getElementById('clock');
+setInterval(() => { week++; if (week > 4){ week = 1; month++; } clock.textContent = `Mois ${month} · semaine ${week}`; }, 4000);
+
+/* ---------- Questionnaire, une question par écran ---------- */
+const STEPS = [
+  {key: 'role', intro: 'Commençons par vous.', q: 'Lequel vous décrit le mieux ?', other: true, options: [
+    {v: 'ops', l: 'Je dirige les opérations d’une ville, d’une région ou d’un pays'},
+    {v: 'direction', l: 'Je dirige l’entreprise ou une business unit'},
+    {v: 'rh', l: 'Je forme et recrute les managers (RH, L&D)'},
+    {v: 'finance', l: 'Je pilote la finance ou la stratégie'}]},
+  {key: 'secteur', q: 'Votre entreprise ressemble plutôt à…', other: true, options: [
+    {v: 'marketplace', l: 'Une marketplace ou une plateforme'},
+    {v: 'logistique', l: 'Logistique, livraison ou mobilité'},
+    {v: 'reseau', l: 'Un réseau d’agences, de magasins ou de sites'},
+    {v: 'scaleup', l: 'Une scaleup de services ou de logiciel'}]},
+  {key: 'taille', q: 'Combien de managers opérationnels dans vos équipes ?', options: [
+    {v: '<10', l: 'Moins de 10'}, {v: '10-50', l: '10 à 50'}, {v: '51-200', l: '51 à 200'}, {v: '>200', l: 'Plus de 200'}]},
+  {key: 'onboarding', intro: 'Un nouveau manager arrive lundi.', q: 'Qui lui apprend le business ?', options: [
+    {v: 'terrain', l: 'Le terrain, à coups d’erreurs', p: 2},
+    {v: 'manager', l: 'Son manager, quand il a le temps', p: 1},
+    {v: 'slides', l: 'Des slides et quelques jours de formation', p: 1},
+    {v: 'forecast', l: 'Nos fichiers de forecast, s’il ose les ouvrir', p: 2},
+    {v: 'programme', l: 'Un programme structuré qui marche bien', p: 0}]},
+  {key: 'test_pl', intro: 'Petit test.', q: 'Vous demandez à un manager terrain ce que coûterait 10 % de bonus en plus pour vos équipes ou vos partenaires. Il répond…', options: [
+    {v: 'minute', l: 'En une minute, avec le bon ordre de grandeur', p: 0},
+    {v: 'finance', l: 'Après être allé voir la finance', p: 1},
+    {v: 'sait_pas', l: 'Il ne sait pas, ce n’est pas son rôle', p: 2},
+    {v: 'pas_sur', l: 'Bonne question, je ne suis pas sûr non plus', p: 2}]},
+  {key: 'forecast', q: 'Vos fichiers de forecast, qui les ouvre vraiment ?', options: [
+    {v: 'finance', l: 'La finance, surtout', p: 2},
+    {v: 'quelques', l: 'La finance et quelques managers', p: 1},
+    {v: 'terrain', l: 'Les équipes terrain aussi, chaque semaine', p: 0},
+    {v: 'aucun', l: 'Nous n’avons pas vraiment de forecast', p: 1}]},
+  {key: 'resultat', intro: 'Imaginez dans 90 jours.', q: 'Quel résultat compterait le plus ?', other: true, options: [
+    {v: 'H1', l: 'Des nouveaux managers autonomes en semaines, pas en mois'},
+    {v: 'H2', l: 'Des équipes qui pensent marge, pas seulement volume'},
+    {v: 'H3', l: 'Une stratégie testée avant d’engager le vrai budget'},
+    {v: 'H4_recrutement', l: 'Des recrutements fondés sur de vraies décisions'},
+    {v: 'H4_seminaire', l: 'Un séminaire dont on parle encore un mois après'}]},
+  {key: 'freins', q: 'Aujourd’hui, où ça coince ?', desc: 'Deux réponses au plus.', max: 2, other: true, options: [
+    {v: 'excel', l: 'Nos modèles Excel sont trop lourds pour être lus'},
+    {v: 'oubli', l: 'Les formations s’oublient en deux semaines'},
+    {v: 'erreurs', l: 'Les erreurs se paient avec du vrai argent'},
+    {v: 'lien_pl', l: 'Le terrain ne voit pas le lien entre ses gestes et le P&L'},
+    {v: 'seniors', l: 'Nos seniors n’ont pas le temps de former'}]},
+  {key: 'forme', intro: 'Si on travaillait ensemble.', q: 'Quelle forme vous tenterait le plus ?', options: [
+    {v: 'atelier', l: 'Un atelier avec un simulateur prêt à jouer'},
+    {v: 'sur_mesure', l: 'Un simulateur construit sur nos chiffres et nos dilemmes'},
+    {v: 'outil', l: 'Un outil où toute l’équipe joue toute l’année'},
+    {v: 'veille', l: 'Rien pour l’instant, je me renseigne'}]},
+  {key: 'budget', q: 'Pour ce genre de projet, quel budget serait réaliste ?', options: [
+    {v: '<5k', l: 'Moins de 5 000 €', t: 0}, {v: '5-15k', l: '5 000 à 15 000 €', t: 1}, {v: '15-40k', l: '15 000 à 40 000 €', t: 2},
+    {v: '>40k', l: 'Plus de 40 000 €', t: 3}, {v: 'nsp', l: 'Je ne sais pas encore', t: 0}]},
+  {key: 'dilemme', text: true, intro: 'Presque fini.', q: 'Quel dilemme vos managers tranchent souvent sans en voir le coût ?', desc: 'Facultatif. Une phrase suffit.', ph: 'Payer des heures supplémentaires ou laisser filer le délai…'},
+  {key: 'autre', text: true, q: 'Autre chose à me dire ?', desc: 'Facultatif.', ph: 'Un contexte, une échéance, une question…'},
+  {contact: true, q: 'Dernière étape : à qui je réponds ?', desc: 'Je lis chaque réponse personnellement.'}
+];
+const answers = {};
+let si = 0, sent = false, busy = false;
+const quiz = document.getElementById('quiz');
+const stage = document.getElementById('quiz-body');
+const nav = document.getElementById('quiz-nav');
+const backBtn = document.getElementById('back');
+const fwdBtn = document.getElementById('fwd');
+const progress = document.querySelector('#progress span');
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
+const pressed = (s, v) => s.max ? (answers[s.key] || []).includes(v) : answers[s.key] === v;
+
+function openQuiz(){
+  setMenu(false);
+  if (!quiz.open){ quiz.showModal(); document.documentElement.style.overflow = 'hidden'; }
+  render(1);
+}
+document.querySelectorAll('[data-open-quiz]').forEach(b => b.addEventListener('click', openQuiz));
+document.getElementById('quiz-close').addEventListener('click', () => quiz.close());
+quiz.addEventListener('close', () => { document.documentElement.style.overflow = ''; });
+
+function render(dir){
+  const s = STEPS[si];
+  progress.style.transform = `scaleX(${sent ? 1 : si / STEPS.length})`;
+  document.getElementById('progress').setAttribute('aria-valuenow', Math.round((sent ? 1 : si / STEPS.length) * 100));
+  nav.hidden = sent;
+  backBtn.disabled = si === 0;
+  if (sent){ renderDone(); return; }
+  let body = '';
+  if (s.options){
+    const opts = [...s.options, ...(s.other ? [{v: 'autre', l: 'Autre'}] : [])];
+    body += `<div class="tf-opts" role="group" aria-labelledby="quiz-q">${opts.map((o, i) => `
+      <button class="tf-opt body-3" data-v="${o.v}" aria-pressed="${pressed(s, o.v)}"><span class="k caption-3" aria-hidden="true">${String.fromCharCode(65 + i)}</span><span>${esc(o.l)}</span><i class="ph ph-check tick" aria-hidden="true"></i></button>`).join('')}
+    </div>`;
+    if (s.other) body += `<div class="tf-field" id="other-box" ${pressed(s, 'autre') ? '' : 'hidden'}><input class="tf-line body-8" id="other" aria-label="Votre réponse" placeholder="Écrivez votre réponse…" value="${esc(answers[s.key + '_autre'])}"></div>`;
+  }
+  if (s.text) body += `<textarea class="tf-line body-8" id="text" aria-labelledby="quiz-q" placeholder="${esc(s.ph)}">${esc(answers[s.key])}</textarea>`;
+  if (s.contact){
+    const call = answers.appel !== false;
+    body += `<div class="tf-fields">
+      <div class="row-2">${field('prenom', 'Prénom', 'text', 'given-name')}${field('nom', 'Nom', 'text', 'family-name')}</div>
+      ${field('email', 'Email professionnel', 'email', 'email')}
+      <div class="row-2">${field('entreprise', 'Entreprise', 'text', 'organization')}${field('telephone', 'Téléphone (facultatif)', 'tel', 'tel')}</div>
+      <label class="check"><input type="checkbox" id="appel" ${call ? 'checked' : ''}><span><span class="body-5">Je veux un appel de 20 minutes avec Yahia</span><br><span class="caption-2 muted">Pour parler de vos dilemmes, pas pour une démo commerciale.</span></span></label>
+    </div>`;
+  }
+  const okLabel = s.contact ? (answers.appel !== false ? 'Envoyer et demander mon appel' : 'Envoyer mes réponses') : 'OK';
+  body += `<div class="tf-ok">
+      <button class="btn btn-accent button-md" id="ok">${okLabel} <i class="ph ${s.contact ? 'ph-paper-plane-tilt' : 'ph-check'}" aria-hidden="true"></i></button>
+      <span class="tf-hint caption-2">appuyez sur <b>Entrée ↵</b></span>
+    </div>
+    <p class="tf-err caption-1" id="tf-err" role="alert"><i class="ph ph-warning-circle" aria-hidden="true"></i><span></span></p>`;
+  stage.innerHTML = `<div class="tf-q ${dir < 0 ? 'in-back' : 'in'}">
+    <div class="tf-head">
+      <span class="tf-num caption-3">${si + 1}<i class="ph ph-arrow-right" aria-hidden="true"></i></span>
+      <div class="tf-head-text">
+        ${s.intro ? `<p class="tf-intro body-5">${s.intro}</p>` : ''}
+        <h2 class="heading-5" id="quiz-q">${s.q}</h2>
+        ${s.desc ? `<p class="tf-desc body-6">${s.desc}</p>` : ''}
+      </div>
+    </div>
+    <div class="tf-body">${body}</div>
+  </div>`;
+  stage.scrollTop = 0;
+  bind();
+  const first = stage.querySelector('#text, #f-prenom, .tf-opt[aria-pressed="true"], .tf-opt');
+  if (first) first.focus({preventScroll: true});
+}
+function field(k, label, type, ac){
+  const req = k !== 'telephone';
+  return `<div class="tf-field"><label class="caption-1" for="f-${k}">${label}</label>
+    <input class="tf-line body-7" id="f-${k}" name="${k}" type="${type}" value="${esc(answers[k])}" autocomplete="${ac}" ${req ? 'required aria-required="true"' : ''}>
+    <p class="err caption-2" id="e-${k}"><i class="ph ph-warning-circle" aria-hidden="true"></i><span></span></p></div>`;
+}
+function bind(){
+  const s = STEPS[si];
+  stage.querySelectorAll('.tf-opt').forEach(b => b.addEventListener('click', () => pick(b)));
+  const other = document.getElementById('other');
+  if (other) other.addEventListener('input', () => { answers[s.key + '_autre'] = other.value; hideErr(); });
+  const text = document.getElementById('text');
+  if (text) text.addEventListener('input', () => { answers[s.key] = text.value; });
+  stage.querySelectorAll('.tf-field input[name]').forEach(i => i.addEventListener('input', () => {
+    answers[i.name] = i.value.trim(); i.removeAttribute('aria-invalid'); document.getElementById('e-' + i.name).classList.remove('show');
+  }));
+  const call = document.getElementById('appel');
+  if (call) call.addEventListener('change', () => {
+    answers.appel = call.checked;
+    document.getElementById('ok').innerHTML = (call.checked ? 'Envoyer et demander mon appel' : 'Envoyer mes réponses') + ' <i class="ph ph-paper-plane-tilt" aria-hidden="true"></i>';
+  });
+  document.getElementById('ok').addEventListener('click', next);
+}
+function pick(b){
+  if (busy) return;
+  const s = STEPS[si]; const v = b.dataset.v;
+  hideErr();
+  if (s.max){
+    let cur = answers[s.key] || [];
+    if (cur.includes(v)) cur = cur.filter(x => x !== v);
+    else if (cur.length >= s.max){ showErr('Deux réponses au plus. Retirez en une pour en choisir une autre.'); return; }
+    else cur = [...cur, v];
+    answers[s.key] = cur;
+  } else answers[s.key] = v;
+  stage.querySelectorAll('.tf-opt').forEach(o => o.setAttribute('aria-pressed', pressed(s, o.dataset.v)));
+  const box = document.getElementById('other-box');
+  if (box){ box.hidden = !pressed(s, 'autre'); if (!box.hidden) document.getElementById('other').focus(); }
+  if (!s.max && v !== 'autre'){
+    busy = true;
+    if (!reduced) b.classList.add('blink');
+    setTimeout(() => { busy = false; next(); }, reduced ? 150 : 520);
+  }
+}
+function showErr(msg){ const e = document.getElementById('tf-err'); if (!e) return; e.querySelector('span').textContent = msg; e.classList.add('show'); }
+function hideErr(){ const e = document.getElementById('tf-err'); if (e) e.classList.remove('show'); }
+function fieldErr(k, msg){ document.getElementById('e-' + k).querySelector('span').textContent = msg; document.getElementById('e-' + k).classList.add('show'); document.getElementById('f-' + k).setAttribute('aria-invalid', 'true'); }
+function validate(){
+  const s = STEPS[si];
+  if (s.options){
+    const cur = answers[s.key];
+    if (s.max ? !(cur && cur.length) : !cur){ showErr('Choisissez une réponse pour continuer.'); return false; }
+    if (pressed(s, 'autre') && !(answers[s.key + '_autre'] || '').trim()){ showErr('Écrivez votre réponse dans la case Autre.'); document.getElementById('other').focus(); return false; }
+  }
+  if (s.contact){
+    let ok = true;
+    const need = {prenom: 'Indiquez votre prénom.', nom: 'Indiquez votre nom.', email: 'Indiquez votre email professionnel.', entreprise: 'Indiquez votre entreprise.'};
+    for (const k in need) if (!answers[k]){ fieldErr(k, need[k]); ok = false; }
+    if (answers.email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(answers.email)){ fieldErr('email', 'Cet email semble incomplet. Vérifiez qu’il contient un @ et un domaine.'); ok = false; }
+    if (answers.telephone && !/^[+\d][\d\s().]{6,}$/.test(answers.telephone)){ fieldErr('telephone', 'Ce numéro semble incomplet.'); ok = false; }
+    if (!ok){ stage.querySelector('[aria-invalid="true"]').focus(); return false; }
+  }
+  return true;
+}
+function go(n){
+  const dir = n > si ? 1 : -1;
+  const cur = stage.querySelector('.tf-q');
+  if (cur && !reduced){ cur.classList.add(dir > 0 ? 'out' : 'out-back'); setTimeout(() => { si = n; render(dir); }, 260); }
+  else { si = n; render(dir); }
+}
+function next(){
+  if (sent || !validate()) return;
+  if (si < STEPS.length - 1) go(si + 1);
+  else submit();
+}
+fwdBtn.addEventListener('click', next);
+backBtn.addEventListener('click', () => { if (si > 0 && !sent) go(si - 1); });
+quiz.addEventListener('keydown', e => {
+  const t = e.target; const typing = t.tagName === 'INPUT' || t.tagName === 'TEXTAREA';
+  const s = STEPS[si];
+  if (e.key === 'Enter'){
+    if (t.tagName === 'TEXTAREA' && e.shiftKey) return;
+    // Entrée valide la question, même quand une réponse a le focus (comme dans Typeform).
+    if ((t.tagName === 'BUTTON' && !t.classList.contains('tf-opt')) || t.type === 'checkbox') return;
+    e.preventDefault(); next(); return;
+  }
+  if (!typing && s && s.options && /^[a-z]$/i.test(e.key) && !e.metaKey && !e.ctrlKey){
+    const b = stage.querySelectorAll('.tf-opt')[e.key.toUpperCase().charCodeAt(0) - 65];
+    if (b){ e.preventDefault(); b.focus(); pick(b); }
+  }
+});
+
+/* Le calcul : quelle hypothèse, combien de douleur, quelle température */
+function score(){
+  const pick = key => { const s = STEPS.find(x => x.key === key); return s && s.options.find(o => o.v === answers[key]); };
+  const pts = k => (pick(k) || {}).p || 0;
+  const pain = pts('onboarding') + pts('test_pl') + pts('forecast') + Math.min(2, (answers.freins || []).length);
+  const tier = (pick('budget') || {}).t || 0;
+  const call = answers.appel !== false;
+  const temperature = (pain >= 5 && tier >= 1 && call) ? 'chaud' : pain >= 3 ? 'tiède' : 'froid';
+  const hypothese = {H1: 'Onboarding', H2: 'Alignement financier', H3: 'Aide à la décision', H4_recrutement: 'Recrutement', H4_seminaire: 'Séminaires', autre: 'Autre : ' + (answers.resultat_autre || '')}[answers.resultat];
+  return {hypothese, score_douleur: pain, temperature};
+}
+function labels(){
+  const out = {};
+  STEPS.filter(s => s.options).forEach(s => {
+    const lab = v => v === 'autre' ? 'Autre : ' + (answers[s.key + '_autre'] || '') : (s.options.find(o => o.v === v) || {}).l;
+    const v = answers[s.key];
+    out[s.key] = Array.isArray(v) ? v.map(lab).join(' | ') : lab(v);
+  });
+  return out;
+}
+async function submit(){
+  const p = new URLSearchParams(location.search);
+  const page = location.protocol.startsWith('http') ? location.origin + location.pathname : 'maquette locale';
+  const payload = {
+    envoye_le: new Date().toISOString(),
+    ...score(),
+    reponses: labels(),
+    dilemme: answers.dilemme || '', autre: answers.autre || '',
+    contact: {prenom: answers.prenom, nom: answers.nom, email: answers.email, entreprise: answers.entreprise, telephone: answers.telephone || '', appel: answers.appel !== false},
+    source: {utm_source: p.get('utm_source') || '', utm_campaign: p.get('utm_campaign') || '', page}
+  };
+  busy = true; nav.hidden = true;
+  stage.innerHTML = '<div class="skeleton" aria-label="Envoi en cours"><span style="width:40%"></span><span style="width:85%"></span><span style="width:70%"></span></div>';
+  try{
+    if (ENDPOINT){
+      await fetch(ENDPOINT, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(payload)});
+    } else {
+      try{ const k = 'dynkin_reponses'; const list = JSON.parse(localStorage.getItem(k) || '[]'); list.push(payload); localStorage.setItem(k, JSON.stringify(list)); }catch(e){}
+      console.info('Maquette : réponse gardée dans ce navigateur', payload);
+      await new Promise(r => setTimeout(r, 600));
+    }
+    sent = true; render(1);
+  } catch (e){
+    render(1);
+    showErr('L’envoi a échoué. Vérifiez votre connexion, puis réessayez.');
+  } finally { busy = false; }
+}
+function renderDone(){
+  const call = answers.appel !== false;
+  stage.innerHTML = `<div class="tf-q tf-done in">
+    <span class="icon-box" aria-hidden="true"><i class="ph ph-check"></i></span>
+    <h2 class="heading-4" id="quiz-q">Merci, ${esc(answers.prenom)}. Vos réponses sont bien arrivées.</h2>
+    <p class="body-7 muted">${call ? `Je les lis et je vous écris à ${esc(answers.email)} pour caler notre appel de 20 minutes.` : `Je les lis personnellement. Si une question se pose, je vous écris à ${esc(answers.email)}.`}</p>
+    <div><button class="btn btn-ghost button-sm" id="done-close">Revenir à la page</button></div>
+  </div>`;
+  document.getElementById('done-close').addEventListener('click', () => quiz.close());
+}
+
+/* ---------- Legal ---------- */
+const LEGAL = {
+  privacy: ['Confidentialité', 'Vos réponses sont enregistrées dans un tableur Google privé. Elles servent seulement à préparer notre échange et à décider ce qui sera construit, et ne sont ni vendues ni partagées. Cette page ne dépose aucun cookie. Pour consulter ou faire effacer vos réponses, écrivez à yahiachaoui1@gmail.com.'],
+  legal: ['Mentions légales', 'Éditeur et directeur de la publication : Yahia Chaoui, yahiachaoui1@gmail.com. Hébergeur : GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États Unis.']
+};
+const legal = document.getElementById('legal');
+document.querySelectorAll('[data-legal]').forEach(b => b.addEventListener('click', () => {
+  const [t, x] = LEGAL[b.dataset.legal];
+  document.getElementById('legal-title').textContent = t;
+  document.getElementById('legal-text').textContent = x;
+  legal.showModal();
+}));
+</script>
+</body>
+</html>
